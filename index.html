@@ -1,0 +1,115 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#14233a">
+<link rel="manifest" href="manifest.json">
+<link rel="icon" href="icon-192.png">
+<link rel="apple-touch-icon" href="icon-192.png">
+<title>O que vestir</title>
+<style>
+:root{--bg:#eef1f4;--card:#fff;--ink:#14233a;--mut:#5b6878;--acc:#1f6f7a;--line:#d5dbe2;--wine:#6e2336}
+@media(prefers-color-scheme:dark){:root{--bg:#0f1826;--card:#18263a;--ink:#e8edf3;--mut:#9aa8b8;--acc:#5fb3bd;--line:#2a3a52;--wine:#d98ba0}}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--ink);font:16px/1.45 system-ui,-apple-system,"Segoe UI",sans-serif;padding:env(safe-area-inset-top) 16px calc(24px + env(safe-area-inset-bottom))}
+main{max-width:520px;margin:0 auto}
+h1,h2{font-family:Georgia,"Times New Roman",serif;font-weight:400;margin:0}
+.temp{font-size:72px;line-height:1;margin:24px 0 4px}
+.sub{color:var(--mut);margin:0 0 20px}
+.chips{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:20px}
+button{font:inherit;color:inherit;cursor:pointer}
+.chip{border:1px solid var(--line);background:transparent;padding:8px 14px;border-radius:999px}
+.chip[aria-pressed=true]{background:var(--ink);color:var(--bg);border-color:var(--ink)}
+.card{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:16px;margin-bottom:14px}
+h2{font-size:22px;margin-bottom:10px}
+ul{list-style:none;margin:0;padding:0}
+li{padding:8px 0;border-top:1px solid var(--line)}
+li:first-child{border-top:0}
+li small{display:block;color:var(--mut)}
+.note{color:var(--mut);margin:10px 0 0;font-size:15px}
+.alt{margin-top:12px;border:1px solid var(--acc);color:var(--acc);background:transparent;border-radius:8px;padding:8px 12px}
+.wine{color:var(--wine)}
+input{font:inherit;width:90px;padding:6px;border:1px solid var(--line);border-radius:6px;background:var(--card);color:var(--ink)}
+:focus-visible{outline:2px solid var(--acc);outline-offset:2px}
+</style>
+</head>
+<body>
+<main>
+<div class="temp" id="temp">--</div>
+<p class="sub" id="sub">Buscando sua localização…</p>
+<p class="sub" id="manual" hidden>Sem GPS: informe a temperatura (°C) <input id="mt" type="number" inputmode="numeric" placeholder="22"></p>
+<div class="chips" id="chips" role="group" aria-label="Ocasião"></div>
+<section class="card"><h2>Look</h2><ul id="look"></ul><p class="note" id="lnote"></p><button class="alt" id="next">Outro look</button></section>
+<section class="card"><h2>Perfume</h2><ul id="perf"></ul><p class="note" id="pnote"></p></section>
+</main>
+<script>
+// Dados fixos: edite aqui. t = faixa de temperatura aparente (°C); l = já inclui casaco.
+const OCC={casual:'Dia a dia',trabalho:'Trabalho',jantar:'Jantar',encontro:'Encontro'};
+const ALL=Object.keys(OCC);
+const LOOKS=[
+{n:'Calor simples',p:['Levi’s 501 média','Polo branca','Rainha VL branco'],t:[24,50],o:ALL},
+{n:'Linho rosa',p:['Calça cáqui','Camisa de linho rosa','Rainha VL branco'],t:[24,50],o:['casual','encontro','jantar']},
+{n:'Linho branco',p:['Calça cáqui','Camisa de linho branca','Nike Blazer Low'],t:[23,50],o:['jantar','encontro','casual']},
+{n:'Oxford e jeans',p:['Levi’s 501 média','Oxford azul-clara (manga curta)','Nike Cortez'],t:[21,50],o:['casual','trabalho','encontro']},
+{n:'Trabalho no calor',p:['Calça cáqui','Polo branca','Rainha VL branco'],t:[20,50],o:['trabalho'],x:'Ainda sem camisa de manga longa nem bota: são as próximas compras.'},
+{n:'Workwear leve',p:['Calça cáqui','Camisa azul-petróleo aberta','Camiseta branca','Nike Cortez'],t:[17,26],o:['casual','encontro','jantar']},
+{n:'Tom sobre tom',p:['Calça fatigue','Henley terroso','Adidas verde musgo'],t:[17,26],o:['casual']},
+{n:'Jeans escuro',p:['Levi’s 511 escura','Henley terroso','Jaqueta marrom','Nike Blazer Mid'],t:[14,22],o:ALL,l:1},
+{n:'Noite fresca',p:['Levi’s 511 escura','Camiseta branca','Suéter peruano','Nike Blazer Mid'],t:[0,18],o:ALL},
+{n:'Frio',p:['Levi’s 501 média','Gola alta preta','Jaqueta marrom','Nike Blazer Mid'],t:[0,16],o:['jantar','encontro','trabalho'],l:1},
+{n:'Frio casual',p:['Levi’s 501 média','Camiseta lisa','Fleece azul','New Balance 574'],t:[0,16],o:['casual'],l:1}
+];
+// f = peso (1 fresco … 3 quente); n = serve à noite; ? = descrição por palpite
+const PERF=[
+{n:'Granado Bossa',d:'cítrico, marinho e floral solar',t:[22,50],o:['casual','encontro','jantar']},
+{n:'O Boticário Insensatez',d:'cítrico fresco, colônia leve',t:[22,50],o:['casual','trabalho']},
+{n:'Granado Folha de Laranjeira',d:'cítrico floral (palpite)',t:[18,50],o:['casual','trabalho']},
+{n:'Phebo Brisa',d:'fresco aquático (palpite)',t:[22,50],o:['casual']},
+{n:'Brésil Mergulho Energizante',d:'aquático fresco (palpite)',t:[24,50],o:['casual']},
+{n:'Brésil Sorriso Sincero',d:'sem dados, uso geral (palpite)',t:[18,50],o:['casual','trabalho']},
+{n:'Amyi 2.11',d:'floral fresco, unissex',t:[16,50],o:['trabalho','jantar','encontro','casual'],n2:1}
+];
+const $=id=>document.getElementById(id);
+let occ=localStorage.getItem('occ')||'casual',W=null,idx=0;
+function chips(){$('chips').innerHTML='';ALL.forEach(k=>{const b=document.createElement('button');b.className='chip';b.textContent=OCC[k];b.setAttribute('aria-pressed',k===occ);b.onclick=()=>{occ=k;idx=0;try{localStorage.setItem('occ',k)}catch(e){}chips();render()};$('chips').appendChild(b)})}
+function ul(el,items){el.innerHTML=items.map(i=>'<li>'+i+'</li>').join('')}
+function render(){
+ if(!W)return;
+ const T=W.feels,E=W.eve,night=occ==='jantar'||occ==='encontro';
+ let m=LOOKS.filter(l=>l.o.includes(occ)&&T>=l.t[0]&&T<=l.t[1]);
+ if(!m.length)m=[LOOKS.slice().sort((a,b)=>Math.abs(T-(a.t[0]+a.t[1])/2)-Math.abs(T-(b.t[0]+b.t[1])/2))[0]];
+ const L=m[idx%m.length];
+ const items=L.p.map((p,i)=>'<span>'+p+'</span>');
+ const lay=[];
+ if(!L.l&&E<19){lay.push(E<14?'Suéter peruano':(night||occ==='trabalho'?'Jaqueta marrom':'Patagonia azul'))}
+ if(W.rain>=50)lay.push('Corta-vento azul-claro (chuva)');
+ else if(W.wind>=28&&!L.l&&!lay.length)lay.push('Patagonia azul (vento)');
+ ul($('look'),items.concat(lay.map(x=>'<span class="wine">+ '+x+'</span>')));
+ $('lnote').textContent=L.n+(L.x?'. '+L.x:'')+(E<T-3?'. Esfria até '+Math.round(E)+'° à noite: leve a camada.':'');
+ $('next').hidden=m.length<2;
+ let sc=PERF.map(p=>({p,s:(T>=p.t[0]&&T<=p.t[1]?2:-Math.abs(T-(p.t[0]+p.t[1])/2)/10)+(p.o.includes(occ)?1:0)+(night&&p.n2?1:0)})).sort((a,b)=>b.s-a.s);
+ ul($('perf'),sc.slice(0,2).map((x,i)=>'<b>'+x.p.n+'</b><small>'+x.p.d+(i?' · alternativa':'')+'</small>'));
+ $('pnote').textContent=(T<16||(night&&T<20))?'Seus perfumes são todos frescos. Para frio e noite, um amadeirado (Amyi 2.13) seria o próximo.':'';
+}
+function setW(feels,eve,rain,wind,tmax){W={feels,eve:Math.min(eve,feels),rain,wind};$('temp').textContent=Math.round(feels)+'°';
+ $('sub').textContent='Sensação agora'+(tmax!=null?' · máx. '+Math.round(tmax)+'°':'')+' · chuva '+Math.round(rain)+'% · vento '+Math.round(wind)+' km/h';render()}
+function manual(){$('manual').hidden=false;$('sub').textContent='Não consegui usar o GPS.';$('mt').oninput=e=>{const v=parseFloat(e.target.value);if(!isNaN(v))setW(v,v-4,0,0,null)}}
+function load(){
+ if(!navigator.geolocation)return manual();
+ navigator.geolocation.getCurrentPosition(async pos=>{
+  try{
+   const u='https://api.open-meteo.com/v1/forecast?latitude='+pos.coords.latitude+'&longitude='+pos.coords.longitude+'&current=apparent_temperature,wind_speed_10m&hourly=apparent_temperature,precipitation_probability&daily=temperature_2m_max&timezone=auto&forecast_days=1';
+   const d=await(await fetch(u)).json();
+   const h=new Date().getHours(),a=d.hourly.apparent_temperature,p=d.hourly.precipitation_probability;
+   const from=Math.max(h,18),ev=a.slice(from,23).concat(a[h]);
+   setW(d.current.apparent_temperature,Math.min(...ev),Math.max(...p.slice(h,24)),d.current.wind_speed_10m,d.daily.temperature_2m_max[0]);
+  }catch(e){manual()}
+ },manual,{timeout:10000,maximumAge:600000});
+}
+$('next').onclick=()=>{idx++;render()};
+chips();load();
+if('serviceWorker' in navigator)navigator.serviceWorker.register('sw.js').catch(()=>{});
+</script>
+</body>
+</html>
