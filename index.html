@@ -68,7 +68,7 @@ input[type=checkbox]{width:auto}
 <section class="card"><h2>Looks</h2><ul id="eL"></ul>
 <input id="ln" placeholder="Nome do look"><p class="note" style="margin:0 0 8px">Peças do look</p><div class="chips" id="lp"></div>
 <div class="row">Serve de <input id="l0" type="number" value="18"> a <input id="l1" type="number" value="30"> °C</div>
-<div class="chips" id="lo"></div><button class="alt" id="la">Salvar look</button></section>
+<label><input type="checkbox" id="lb"> look ousado</label><div class="chips" id="lo"></div><button class="alt" id="la">Salvar look</button></section>
 <section class="card"><h2>Perfumes</h2><ul id="eF"></ul>
 <input id="fn" placeholder="Nome"><input id="fd" placeholder="Descrição curta">
 <div class="row">De <input id="f0" type="number" value="18"> a <input id="f1" type="number" value="35"> °C <label><input type="checkbox" id="fx"> serve à noite</label></div>
@@ -87,21 +87,22 @@ pieces:mk([['p501','Levi’s 501 média','calca','#4a76a8'],['p511','Levi’s 51
 ['ppolo','Polo branca','polo','#f3f3ee'],['plr','Camisa de linho rosa','camisa','#d9a9b4'],['plb','Camisa de linho branca','camisa','#f5f5f2'],['pox','Oxford azul-clara','camisa','#a9c3e2'],['ppet','Camisa azul-petróleo','camisa','#1f6f7a'],['pam','Camisa amarelo-palha','camisa','#e6d49a'],
 ['pctw','Camiseta branca','camiseta','#f7f7f7'],['phen','Henley terroso','camiseta','#b8a98c'],['pgola','Gola alta preta','camiseta','#1a1a1a'],['psuper','Suéter peruano','malha','#e9e3d3'],
 ['pjm','Jaqueta marrom','casaco','#6b4a32'],['ppat','Patagonia azul','casaco','#2f3fa0'],['pcv','Corta-vento azul-claro','casaco','#6c97b8'],['pfl','Fleece azul','casaco','#5d6f8a'],
-['tvl','Rainha VL branco','tenis','#f2f2f2'],['tbl','Nike Blazer Low','tenis','#e8e4d8'],['tbm','Nike Blazer Mid','tenis','#e8e4d8'],['tco','Nike Cortez','tenis','#ededed'],['tad','Adidas verde musgo','tenis','#5e6b43'],['tnb','New Balance 574','tenis','#a8323a']],([id,n,k,c])=>({id,n,k,c})),
-looks:mk([['Calor simples',['p501','ppolo','tvl'],24,50,ALL],['Linho rosa',['pkh','plr','tvl'],24,50,['casual','encontro','jantar']],['Linho branco',['pkh','plb','tbl'],23,50,['jantar','encontro','casual']],
+['tvl','Rainha VL branco','tenis','#f2f2f2'],['tbl','Nike Blazer Low','tenis','#e8e4d8'],['tbm','Nike Blazer Mid','tenis','#e8e4d8'],['tco','Nike Cortez','tenis','#ededed'],['tad','Adidas verde musgo','tenis','#5e6b43'],['tnb','New Balance 574','tenis','#a8323a'],['tva','Vans Authentic azul','tenis','#5f86a8']],([id,n,k,c])=>({id,n,k,c})),
+looks:mk([['Calor simples',['p501','ppolo','tvl'],24,50,ALL],['Linho rosa',['pkh','plr','tvl'],24,50,['casual','encontro','jantar'],0,1],['Linho branco',['pkh','plb','tbl'],23,50,['jantar','encontro','casual']],
 ['Oxford e jeans',['p501','pox','tco'],21,50,['casual','trabalho','encontro']],['Trabalho no calor',['pkh','ppolo','tvl'],20,50,['trabalho'],'Ainda sem camisa de manga longa nem bota: são as próximas compras.'],
 ['Workwear leve',['pkh','ppet','pctw','tco'],17,26,['casual','encontro','jantar']],['Tom sobre tom',['pfat','phen','tad'],17,26,['casual']],['Jeans escuro',['p511','phen','pjm','tbm'],14,22,ALL],
-['Noite fresca',['p511','pctw','psuper','tbm'],0,18,ALL],['Frio',['p501','pgola','pjm','tbm'],0,16,['jantar','encontro','trabalho']],['Frio casual',['p501','pctw','pfl','tnb'],0,16,['casual']]],([n,p,a,b,o,x],i)=>({id:'d'+i,n,p,t:[a,b],o,x})),
+['Noite fresca',['p511','pctw','psuper','tbm'],0,18,ALL],['Frio',['p501','pgola','pjm','tbm'],0,16,['jantar','encontro','trabalho']],['Frio casual',['p501','pctw','pfl','tnb'],0,16,['casual']],['Ponto vermelho',['p501','ppolo','tnb'],20,50,['casual','encontro','jantar']],['Cáqui e vermelho',['pkh','pox','tnb'],21,50,['casual','encontro']],['Petróleo e vermelho',['p511','pctw','ppet','tnb'],17,27,['casual','encontro','jantar'],0,1],['Rosa e verde',['pfat','plr','tad'],22,50,['casual','encontro'],0,1],['Palha e jeans',['p501','pam','tbl'],22,50,['casual','encontro'],0,1],['Vans e cáqui',['pkh','ppolo','tva'],22,50,['casual','encontro','trabalho']],['Vans e linho branco',['p511','plb','tva'],23,50,['casual','encontro','jantar']],['Vans e rosa',['pkh','plr','tva'],24,50,['casual','encontro'],0,1]],([n,p,a,b,o,x,bd],i)=>({id:'d'+i,n,p,t:[a,b],o,x,b:!!bd})),
 perf:mk([['Granado Bossa','cítrico, marinho e floral solar',22,50,['casual','encontro','jantar']],['O Boticário Insensatez','cítrico fresco, colônia leve',22,50,['casual','trabalho']],['Granado Folha de Laranjeira','cítrico floral (palpite)',18,50,['casual','trabalho']],
 ['Phebo Brisa','fresco aquático (palpite)',22,50,['casual']],['Brésil Mergulho Energizante','aquático fresco (palpite)',24,50,['casual']],['Brésil Sorriso Sincero','sem dados, uso geral (palpite)',18,50,['casual','trabalho']],
 ['Amyi 2.11','floral fresco, unissex',16,50,['trabalho','jantar','encontro','casual'],1]],([n,d,a,b,o,x])=>({n,d,t:[a,b],o,x:!!x}))};
 let S;try{S=JSON.parse(localStorage.getItem('vestir2'))}catch(e){}
 if(!S||!S.pieces)S=JSON.parse(JSON.stringify(DEF));
 const save=()=>{try{localStorage.setItem('vestir2',JSON.stringify(S))}catch(e){}};
+if(S.v!==4){DEF.pieces.forEach(p=>{if(!S.pieces.some(q=>q.id===p.id))S.pieces.push(p)});DEF.looks.forEach(l=>{const o=S.looks.find(q=>q.id===l.id);if(!o)S.looks.push(l);else if(o.b==null&&l.b)o.b=1});S.v=4;save()}
 const $=id=>document.getElementById(id),P=id=>S.pieces.find(p=>p.id===id);
 const esc=s=>String(s).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
-let occ='casual',W=null,idx=0,v=0;try{occ=localStorage.getItem('occ')||occ}catch(e){}
-function chips(){$('chips').innerHTML='';ALL.forEach(k=>{const b=document.createElement('button');b.className='chip';b.textContent=OCC[k];b.setAttribute('aria-pressed',k===occ);b.onclick=()=>{occ=k;idx=0;v=0;try{localStorage.setItem('occ',k)}catch(e){}chips();render()};$('chips').appendChild(b)})}
+let occ='casual',W=null,idx=0,v=0,bold=false;try{occ=localStorage.getItem('occ')||occ;bold=localStorage.getItem('bold')==='1'}catch(e){}
+function chips(){$('chips').innerHTML='';ALL.forEach(k=>{const b=document.createElement('button');b.className='chip';b.textContent=OCC[k];b.setAttribute('aria-pressed',k===occ);b.onclick=()=>{occ=k;idx=0;v=0;try{localStorage.setItem('occ',k)}catch(e){}chips();render()};$('chips').appendChild(b)});const o=document.createElement('button');o.className='chip';o.textContent='Mais ousado';o.setAttribute('aria-pressed',bold);o.onclick=()=>{bold=!bold;idx=0;v=0;try{localStorage.setItem('bold',bold?'1':'0')}catch(e){}chips();render()};$('chips').appendChild(o)}
 function use(p,tee){let o=(OPTS[p.k]||[]).slice();if(!o.length)return'';if(p.k==='camisa'&&tee)o.push('aberta sobre camiseta');
  let b=0;if(p.k==='camisa'||p.k==='polo')b=(occ==='trabalho'||occ==='jantar')?0:1;if(p.k==='calca')b=/cáqui|chino/i.test(p.n)?1:0;if(p.k==='casaco')b=W.wind>=20?0:1;
  return o[(b+v)%o.length]}
@@ -112,6 +113,7 @@ function render(){
  if(!W)return;
  const T=W.feels,E=W.eve,night=occ==='jantar'||occ==='encontro';
  let m=S.looks.filter(l=>l.o.includes(occ)&&T>=l.t[0]&&T<=l.t[1]);
+ if(bold){const bl=m.filter(l=>l.b);if(bl.length)m=bl}
  if(!m.length&&S.looks.length)m=[S.looks.slice().sort((a,b)=>Math.abs(T-(a.t[0]+a.t[1])/2)-Math.abs(T-(b.t[0]+b.t[1])/2))[0]];
  if(!m.length){$('look').innerHTML='';$('lnote').textContent='Nenhum look cadastrado. Crie um na aba Editar.';}
  else{
@@ -155,7 +157,7 @@ $('eP').onclick=e=>{const i=e.target.dataset.i;if(i==null)return;const id=S.piec
 $('eL').onclick=e=>{const i=e.target.dataset.i;if(i==null)return;S.looks.splice(i,1);save();editR();render()};
 $('eF').onclick=e=>{const i=e.target.dataset.i;if(i==null)return;S.perf.splice(i,1);save();editR();render()};
 $('pa').onclick=()=>{const n=$('pn').value.trim();if(!n)return;S.pieces.push({id:'u'+Date.now(),n,k:$('pk').value,c:$('pc').value});$('pn').value='';save();editR()};
-$('la').onclick=()=>{const n=$('ln').value.trim();if(!n||!selP.size||!selLo.size)return;S.looks.push({id:'u'+Date.now(),n,p:[...selP],t:[+$('l0').value,+$('l1').value],o:[...selLo]});$('ln').value='';selP.clear();save();editR();render()};
+$('la').onclick=()=>{const n=$('ln').value.trim();if(!n||!selP.size||!selLo.size)return;S.looks.push({id:'u'+Date.now(),n,p:[...selP],t:[+$('l0').value,+$('l1').value],o:[...selLo],b:$('lb').checked});$('ln').value='';selP.clear();save();editR();render()};
 $('fa').onclick=()=>{const n=$('fn').value.trim();if(!n||!selFo.size)return;S.perf.push({n,d:$('fd').value.trim(),t:[+$('f0').value,+$('f1').value],o:[...selFo],x:$('fx').checked});$('fn').value=$('fd').value='';save();editR();render()};
 $('be').onclick=()=>{$('bk').value=JSON.stringify(S)};
 $('br').onclick=()=>{try{const d=JSON.parse($('bk').value);if(!d.pieces||!d.looks||!d.perf)throw 0;S=d;save();editR();render();$('bk').value='Backup restaurado.'}catch(e){$('bk').value='Texto de backup inválido.'}};
