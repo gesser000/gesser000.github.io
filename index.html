@@ -14,100 +14,157 @@
 *{box-sizing:border-box}
 body{margin:0;background:var(--bg);color:var(--ink);font:16px/1.45 system-ui,-apple-system,"Segoe UI",sans-serif;padding:env(safe-area-inset-top) 16px calc(24px + env(safe-area-inset-bottom))}
 main{max-width:520px;margin:0 auto}
-h1,h2{font-family:Georgia,"Times New Roman",serif;font-weight:400;margin:0}
-.temp{font-size:72px;line-height:1;margin:24px 0 4px}
-.sub{color:var(--mut);margin:0 0 20px}
-.chips{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:20px}
-button{font:inherit;color:inherit;cursor:pointer}
-.chip{border:1px solid var(--line);background:transparent;padding:8px 14px;border-radius:999px}
+h2{font:400 22px Georgia,"Times New Roman",serif;margin:0 0 10px}
+.temp{font:400 72px/1 Georgia,serif;margin:16px 0 4px}
+.sub{color:var(--mut);margin:0 0 14px}
+.tabs{display:flex;gap:16px;padding-top:12px}
+.tab{border:0;background:none;padding:6px 0;color:var(--mut);border-bottom:2px solid transparent}
+.tab[aria-pressed=true]{color:var(--ink);border-color:var(--acc)}
+.chips{display:flex;gap:8px;flex-wrap:wrap;margin:8px 0 16px}
+button,select,input,textarea{font:inherit;color:inherit}
+button{cursor:pointer}
+.chip{border:1px solid var(--line);background:transparent;padding:7px 13px;border-radius:999px}
 .chip[aria-pressed=true]{background:var(--ink);color:var(--bg);border-color:var(--ink)}
 .card{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:16px;margin-bottom:14px}
-h2{font-size:22px;margin-bottom:10px}
-ul{list-style:none;margin:0;padding:0}
-li{padding:8px 0;border-top:1px solid var(--line)}
+.blocks{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.blk i{display:block;height:42px;border-radius:8px;border:1px solid var(--line);margin-bottom:6px}
+.blk b{font-weight:500;display:block;line-height:1.25}
+.blk small,.note,li small,.axis{color:var(--mut)}
+.blk small{display:block}
+.blk.lay b{color:var(--wine)}
+.note{margin:12px 0 0;font-size:15px}
+.btns{display:flex;gap:8px;margin-top:12px;flex-wrap:wrap}
+.alt{border:1px solid var(--acc);color:var(--acc);background:transparent;border-radius:8px;padding:8px 12px}
+.axis{display:flex;justify-content:space-between;font-size:13px;margin-bottom:14px}
+ul{list-style:none;margin:0 0 12px;padding:0}
+li{padding:8px 0;border-top:1px solid var(--line);display:flex;justify-content:space-between;gap:8px;align-items:center}
 li:first-child{border-top:0}
-li small{display:block;color:var(--mut)}
-.note{color:var(--mut);margin:10px 0 0;font-size:15px}
-.alt{margin-top:12px;border:1px solid var(--acc);color:var(--acc);background:transparent;border-radius:8px;padding:8px 12px}
-.wine{color:var(--wine)}
-input{font:inherit;width:90px;padding:6px;border:1px solid var(--line);border-radius:6px;background:var(--card);color:var(--ink)}
+li button{border:0;background:none;color:var(--wine);padding:4px 8px}
+li .dot{display:inline-block;width:12px;height:12px;border-radius:3px;border:1px solid var(--line);margin-right:8px}
+input,select,textarea{width:100%;padding:8px;border:1px solid var(--line);border-radius:8px;background:var(--card);margin:0 0 8px}
+input[type=color]{width:48px;padding:2px;height:38px}
+input[type=checkbox]{width:auto}
+.row{display:flex;gap:8px;align-items:center;flex-wrap:wrap}
+.row input[type=number]{width:70px}
 :focus-visible{outline:2px solid var(--acc);outline-offset:2px}
 </style>
 </head>
 <body>
 <main>
+<nav class="tabs"><button class="tab" id="tH" aria-pressed="true">Hoje</button><button class="tab" id="tE" aria-pressed="false">Editar</button></nav>
+<div id="hoje">
 <div class="temp" id="temp">--</div>
 <p class="sub" id="sub">Buscando sua localização…</p>
-<p class="sub" id="manual" hidden>Sem GPS: informe a temperatura (°C) <input id="mt" type="number" inputmode="numeric" placeholder="22"></p>
+<p class="sub" id="manual" hidden>Sem GPS: informe a temperatura (°C) <input id="mt" type="number" inputmode="numeric" placeholder="22" style="width:90px"></p>
+<div id="chart"></div>
 <div class="chips" id="chips" role="group" aria-label="Ocasião"></div>
-<section class="card"><h2>Look</h2><ul id="look"></ul><p class="note" id="lnote"></p><button class="alt" id="next">Outro look</button></section>
+<section class="card" id="lcard"><h2>Look</h2><div class="blocks" id="look"></div><p class="note" id="lnote"></p>
+<div class="btns"><button class="alt" id="prev">Anterior</button><button class="alt" id="next">Outro look</button><button class="alt" id="vary">Variar uso</button></div></section>
 <section class="card"><h2>Perfume</h2><ul id="perf"></ul><p class="note" id="pnote"></p></section>
+</div>
+<div id="edit" hidden>
+<section class="card"><h2>Peças</h2><ul id="eP"></ul>
+<input id="pn" placeholder="Nome da peça"><div class="row"><select id="pk" style="flex:1"></select><input id="pc" type="color" value="#b9a577" aria-label="Cor"></div><button class="alt" id="pa">Adicionar peça</button></section>
+<section class="card"><h2>Looks</h2><ul id="eL"></ul>
+<input id="ln" placeholder="Nome do look"><p class="note" style="margin:0 0 8px">Peças do look</p><div class="chips" id="lp"></div>
+<div class="row">Serve de <input id="l0" type="number" value="18"> a <input id="l1" type="number" value="30"> °C</div>
+<div class="chips" id="lo"></div><button class="alt" id="la">Salvar look</button></section>
+<section class="card"><h2>Perfumes</h2><ul id="eF"></ul>
+<input id="fn" placeholder="Nome"><input id="fd" placeholder="Descrição curta">
+<div class="row">De <input id="f0" type="number" value="18"> a <input id="f1" type="number" value="35"> °C <label><input type="checkbox" id="fx"> serve à noite</label></div>
+<div class="chips" id="fo"></div><button class="alt" id="fa">Adicionar perfume</button></section>
+<section class="card"><h2>Backup</h2><textarea id="bk" rows="4" placeholder="Os dados ficam só neste celular. Gere o backup e guarde o texto."></textarea>
+<div class="btns"><button class="alt" id="be">Gerar backup</button><button class="alt" id="br">Restaurar</button><button class="alt" id="bd">Voltar ao padrão</button></div></section>
+</div>
 </main>
 <script>
-// Dados fixos: edite aqui. t = faixa de temperatura aparente (°C); l = já inclui casaco.
-const OCC={casual:'Dia a dia',trabalho:'Trabalho',jantar:'Jantar',encontro:'Encontro'};
-const ALL=Object.keys(OCC);
-const LOOKS=[
-{n:'Calor simples',p:['Levi’s 501 média','Polo branca','Rainha VL branco'],t:[24,50],o:ALL},
-{n:'Linho rosa',p:['Calça cáqui','Camisa de linho rosa','Rainha VL branco'],t:[24,50],o:['casual','encontro','jantar']},
-{n:'Linho branco',p:['Calça cáqui','Camisa de linho branca','Nike Blazer Low'],t:[23,50],o:['jantar','encontro','casual']},
-{n:'Oxford e jeans',p:['Levi’s 501 média','Oxford azul-clara (manga curta)','Nike Cortez'],t:[21,50],o:['casual','trabalho','encontro']},
-{n:'Trabalho no calor',p:['Calça cáqui','Polo branca','Rainha VL branco'],t:[20,50],o:['trabalho'],x:'Ainda sem camisa de manga longa nem bota: são as próximas compras.'},
-{n:'Workwear leve',p:['Calça cáqui','Camisa azul-petróleo aberta','Camiseta branca','Nike Cortez'],t:[17,26],o:['casual','encontro','jantar']},
-{n:'Tom sobre tom',p:['Calça fatigue','Henley terroso','Adidas verde musgo'],t:[17,26],o:['casual']},
-{n:'Jeans escuro',p:['Levi’s 511 escura','Henley terroso','Jaqueta marrom','Nike Blazer Mid'],t:[14,22],o:ALL,l:1},
-{n:'Noite fresca',p:['Levi’s 511 escura','Camiseta branca','Suéter peruano','Nike Blazer Mid'],t:[0,18],o:ALL},
-{n:'Frio',p:['Levi’s 501 média','Gola alta preta','Jaqueta marrom','Nike Blazer Mid'],t:[0,16],o:['jantar','encontro','trabalho'],l:1},
-{n:'Frio casual',p:['Levi’s 501 média','Camiseta lisa','Fleece azul','New Balance 574'],t:[0,16],o:['casual'],l:1}
-];
-// f = peso (1 fresco … 3 quente); n = serve à noite; ? = descrição por palpite
-const PERF=[
-{n:'Granado Bossa',d:'cítrico, marinho e floral solar',t:[22,50],o:['casual','encontro','jantar']},
-{n:'O Boticário Insensatez',d:'cítrico fresco, colônia leve',t:[22,50],o:['casual','trabalho']},
-{n:'Granado Folha de Laranjeira',d:'cítrico floral (palpite)',t:[18,50],o:['casual','trabalho']},
-{n:'Phebo Brisa',d:'fresco aquático (palpite)',t:[22,50],o:['casual']},
-{n:'Brésil Mergulho Energizante',d:'aquático fresco (palpite)',t:[24,50],o:['casual']},
-{n:'Brésil Sorriso Sincero',d:'sem dados, uso geral (palpite)',t:[18,50],o:['casual','trabalho']},
-{n:'Amyi 2.11',d:'floral fresco, unissex',t:[16,50],o:['trabalho','jantar','encontro','casual'],n2:1}
-];
-const $=id=>document.getElementById(id);
-let occ=localStorage.getItem('occ')||'casual',W=null,idx=0;
-function chips(){$('chips').innerHTML='';ALL.forEach(k=>{const b=document.createElement('button');b.className='chip';b.textContent=OCC[k];b.setAttribute('aria-pressed',k===occ);b.onclick=()=>{occ=k;idx=0;try{localStorage.setItem('occ',k)}catch(e){}chips();render()};$('chips').appendChild(b)})}
-function ul(el,items){el.innerHTML=items.map(i=>'<li>'+i+'</li>').join('')}
+const OCC={casual:'Dia a dia',trabalho:'Trabalho',jantar:'Jantar',encontro:'Encontro'},ALL=Object.keys(OCC);
+const KIND={camisa:'Camisa',polo:'Polo',camiseta:'Camiseta',malha:'Suéter ou malha',calca:'Calça',casaco:'Casaco',tenis:'Calçado'};
+const OPTS={camisa:['por dentro, com cinto','por fora, mangas dobradas'],polo:['por dentro','por fora'],camiseta:['por fora','por dentro'],calca:['barra normal','barra dobrada'],casaco:['fechado','aberto'],malha:['sobre a camisa','sozinho']};
+const mk=(a,f)=>a.map(f);
+const DEF={
+pieces:mk([['p501','Levi’s 501 média','calca','#4a76a8'],['p511','Levi’s 511 escura','calca','#1f2d45'],['pfat','Calça fatigue','calca','#4f5a3a'],['pkh','Calça cáqui','calca','#b9a577'],
+['ppolo','Polo branca','polo','#f3f3ee'],['plr','Camisa de linho rosa','camisa','#d9a9b4'],['plb','Camisa de linho branca','camisa','#f5f5f2'],['pox','Oxford azul-clara','camisa','#a9c3e2'],['ppet','Camisa azul-petróleo','camisa','#1f6f7a'],['pam','Camisa amarelo-palha','camisa','#e6d49a'],
+['pctw','Camiseta branca','camiseta','#f7f7f7'],['phen','Henley terroso','camiseta','#b8a98c'],['pgola','Gola alta preta','camiseta','#1a1a1a'],['psuper','Suéter peruano','malha','#e9e3d3'],
+['pjm','Jaqueta marrom','casaco','#6b4a32'],['ppat','Patagonia azul','casaco','#2f3fa0'],['pcv','Corta-vento azul-claro','casaco','#6c97b8'],['pfl','Fleece azul','casaco','#5d6f8a'],
+['tvl','Rainha VL branco','tenis','#f2f2f2'],['tbl','Nike Blazer Low','tenis','#e8e4d8'],['tbm','Nike Blazer Mid','tenis','#e8e4d8'],['tco','Nike Cortez','tenis','#ededed'],['tad','Adidas verde musgo','tenis','#5e6b43'],['tnb','New Balance 574','tenis','#a8323a']],([id,n,k,c])=>({id,n,k,c})),
+looks:mk([['Calor simples',['p501','ppolo','tvl'],24,50,ALL],['Linho rosa',['pkh','plr','tvl'],24,50,['casual','encontro','jantar']],['Linho branco',['pkh','plb','tbl'],23,50,['jantar','encontro','casual']],
+['Oxford e jeans',['p501','pox','tco'],21,50,['casual','trabalho','encontro']],['Trabalho no calor',['pkh','ppolo','tvl'],20,50,['trabalho'],'Ainda sem camisa de manga longa nem bota: são as próximas compras.'],
+['Workwear leve',['pkh','ppet','pctw','tco'],17,26,['casual','encontro','jantar']],['Tom sobre tom',['pfat','phen','tad'],17,26,['casual']],['Jeans escuro',['p511','phen','pjm','tbm'],14,22,ALL],
+['Noite fresca',['p511','pctw','psuper','tbm'],0,18,ALL],['Frio',['p501','pgola','pjm','tbm'],0,16,['jantar','encontro','trabalho']],['Frio casual',['p501','pctw','pfl','tnb'],0,16,['casual']]],([n,p,a,b,o,x],i)=>({id:'d'+i,n,p,t:[a,b],o,x})),
+perf:mk([['Granado Bossa','cítrico, marinho e floral solar',22,50,['casual','encontro','jantar']],['O Boticário Insensatez','cítrico fresco, colônia leve',22,50,['casual','trabalho']],['Granado Folha de Laranjeira','cítrico floral (palpite)',18,50,['casual','trabalho']],
+['Phebo Brisa','fresco aquático (palpite)',22,50,['casual']],['Brésil Mergulho Energizante','aquático fresco (palpite)',24,50,['casual']],['Brésil Sorriso Sincero','sem dados, uso geral (palpite)',18,50,['casual','trabalho']],
+['Amyi 2.11','floral fresco, unissex',16,50,['trabalho','jantar','encontro','casual'],1]],([n,d,a,b,o,x])=>({n,d,t:[a,b],o,x:!!x}))};
+let S;try{S=JSON.parse(localStorage.getItem('vestir2'))}catch(e){}
+if(!S||!S.pieces)S=JSON.parse(JSON.stringify(DEF));
+const save=()=>{try{localStorage.setItem('vestir2',JSON.stringify(S))}catch(e){}};
+const $=id=>document.getElementById(id),P=id=>S.pieces.find(p=>p.id===id);
+const esc=s=>String(s).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+let occ='casual',W=null,idx=0,v=0;try{occ=localStorage.getItem('occ')||occ}catch(e){}
+function chips(){$('chips').innerHTML='';ALL.forEach(k=>{const b=document.createElement('button');b.className='chip';b.textContent=OCC[k];b.setAttribute('aria-pressed',k===occ);b.onclick=()=>{occ=k;idx=0;v=0;try{localStorage.setItem('occ',k)}catch(e){}chips();render()};$('chips').appendChild(b)})}
+function use(p,tee){let o=(OPTS[p.k]||[]).slice();if(!o.length)return'';if(p.k==='camisa'&&tee)o.push('aberta sobre camiseta');
+ let b=0;if(p.k==='camisa'||p.k==='polo')b=(occ==='trabalho'||occ==='jantar')?0:1;if(p.k==='calca')b=/cáqui|chino/i.test(p.n)?1:0;if(p.k==='casaco')b=W.wind>=20?0:1;
+ return o[(b+v)%o.length]}
+function blk(p,tee,lay){return '<div class="blk'+(lay?' lay':'')+'"><i style="background:'+esc(p.c)+'"></i><b>'+(lay?'+ ':'')+esc(p.n)+'</b><small>'+esc(use(p,tee))+'</small></div>'}
+function chart(a,h){const mn=Math.min(...a),mx=Math.max(...a),w=300,ht=56,x=i=>i*w/(a.length-1),y=q=>ht-4-(q-mn)/(mx-mn||1)*(ht-12),ci=Math.min(Math.max(h-6,0),a.length-1);
+ $('chart').innerHTML='<svg viewBox="0 0 300 '+ht+'" width="100%" role="img" aria-label="Temperatura ao longo do dia"><polyline points="'+a.map((q,i)=>x(i)+','+y(q)).join(' ')+'" fill="none" stroke="var(--acc)" stroke-width="2"/><circle cx="'+x(ci)+'" cy="'+y(a[ci])+'" r="4" fill="var(--wine)"/></svg><div class="axis"><span>6h</span><span>'+Math.round(mn)+'° a '+Math.round(mx)+'°</span><span>23h</span></div>'}
 function render(){
  if(!W)return;
  const T=W.feels,E=W.eve,night=occ==='jantar'||occ==='encontro';
- let m=LOOKS.filter(l=>l.o.includes(occ)&&T>=l.t[0]&&T<=l.t[1]);
- if(!m.length)m=[LOOKS.slice().sort((a,b)=>Math.abs(T-(a.t[0]+a.t[1])/2)-Math.abs(T-(b.t[0]+b.t[1])/2))[0]];
- const L=m[idx%m.length];
- const items=L.p.map((p,i)=>'<span>'+p+'</span>');
- const lay=[];
- if(!L.l&&E<19){lay.push(E<14?'Suéter peruano':(night||occ==='trabalho'?'Jaqueta marrom':'Patagonia azul'))}
- if(W.rain>=50)lay.push('Corta-vento azul-claro (chuva)');
- else if(W.wind>=28&&!L.l&&!lay.length)lay.push('Patagonia azul (vento)');
- ul($('look'),items.concat(lay.map(x=>'<span class="wine">+ '+x+'</span>')));
- $('lnote').textContent=L.n+(L.x?'. '+L.x:'')+(E<T-3?'. Esfria até '+Math.round(E)+'° à noite: leve a camada.':'');
- $('next').hidden=m.length<2;
- let sc=PERF.map(p=>({p,s:(T>=p.t[0]&&T<=p.t[1]?2:-Math.abs(T-(p.t[0]+p.t[1])/2)/10)+(p.o.includes(occ)?1:0)+(night&&p.n2?1:0)})).sort((a,b)=>b.s-a.s);
- ul($('perf'),sc.slice(0,2).map((x,i)=>'<b>'+x.p.n+'</b><small>'+x.p.d+(i?' · alternativa':'')+'</small>'));
- $('pnote').textContent=(T<16||(night&&T<20))?'Seus perfumes são todos frescos. Para frio e noite, um amadeirado (Amyi 2.13) seria o próximo.':'';
+ let m=S.looks.filter(l=>l.o.includes(occ)&&T>=l.t[0]&&T<=l.t[1]);
+ if(!m.length&&S.looks.length)m=[S.looks.slice().sort((a,b)=>Math.abs(T-(a.t[0]+a.t[1])/2)-Math.abs(T-(b.t[0]+b.t[1])/2))[0]];
+ if(!m.length){$('look').innerHTML='';$('lnote').textContent='Nenhum look cadastrado. Crie um na aba Editar.';}
+ else{
+  const L=m[((idx%m.length)+m.length)%m.length],ps=L.p.map(P).filter(Boolean),tee=ps.some(p=>p.k==='camiseta'),hasOut=ps.some(p=>p.k==='casaco'),cold=E<20&&T-E>=4,lay=[];
+  if(!hasOut&&cold)lay.push(E<14?'psuper':(night||occ==='trabalho'?'pjm':'ppat'));
+  if(W.rain>=50)lay.push('pcv');else if(W.wind>=28&&!hasOut&&!lay.length)lay.push('ppat');
+  $('look').innerHTML=ps.map(p=>blk(p,tee)).join('')+lay.map(P).filter(Boolean).map(p=>blk(p,tee,1)).join('');
+  $('lnote').textContent=L.n+(L.x?'. '+L.x:'')+(cold&&!hasOut?'. Esfria até '+Math.round(E)+'° à noite: leve a camada.':'')+(W.rain>=50?'. Chuva provável.':'');
+ }
+ $('next').hidden=$('prev').hidden=m.length<2;
+ const sc=S.perf.map(p=>({p,s:(T>=p.t[0]&&T<=p.t[1]?2:-Math.abs(T-(p.t[0]+p.t[1])/2)/10)+(p.o.includes(occ)?1:0)+(night&&p.x?1:0)})).sort((a,b)=>b.s-a.s);
+ $('perf').innerHTML=sc.slice(0,2).map((x,i)=>'<li><span><b>'+esc(x.p.n)+'</b><small>'+esc(x.p.d)+(i?' · alternativa':'')+'</small></span></li>').join('');
+ $('pnote').textContent=sc.length&&!sc[0].p.x&&(T<16||(night&&T<20))?'Nenhum perfume seu é indicado para esse clima. Cadastre um mais quente na aba Editar.':'';
 }
-function setW(feels,eve,rain,wind,tmax){W={feels,eve:Math.min(eve,feels),rain,wind};$('temp').textContent=Math.round(feels)+'°';
- $('sub').textContent='Sensação agora'+(tmax!=null?' · máx. '+Math.round(tmax)+'°':'')+' · chuva '+Math.round(rain)+'% · vento '+Math.round(wind)+' km/h';render()}
-function manual(){$('manual').hidden=false;$('sub').textContent='Não consegui usar o GPS.';$('mt').oninput=e=>{const v=parseFloat(e.target.value);if(!isNaN(v))setW(v,v-4,0,0,null)}}
+function setW(f,e,r,w,mx,hrs,h){W={feels:f,eve:Math.min(e,f),rain:r,wind:w};$('temp').textContent=Math.round(f)+'°';
+ $('sub').textContent='Sensação agora'+(mx!=null?' · máx. '+Math.round(mx)+'°':'')+' · chuva '+Math.round(r)+'% · vento '+Math.round(w)+' km/h';
+ if(hrs)chart(hrs,h);else $('chart').innerHTML='';render()}
+function manual(){$('manual').hidden=false;$('sub').textContent='Não consegui usar o GPS.';$('mt').oninput=e=>{const q=parseFloat(e.target.value);if(!isNaN(q))setW(q,q-4,0,0,null)}}
 function load(){
  if(!navigator.geolocation)return manual();
  navigator.geolocation.getCurrentPosition(async pos=>{
   try{
    const u='https://api.open-meteo.com/v1/forecast?latitude='+pos.coords.latitude+'&longitude='+pos.coords.longitude+'&current=apparent_temperature,wind_speed_10m&hourly=apparent_temperature,precipitation_probability&daily=temperature_2m_max&timezone=auto&forecast_days=1';
-   const d=await(await fetch(u)).json();
-   const h=new Date().getHours(),a=d.hourly.apparent_temperature,p=d.hourly.precipitation_probability;
-   const from=Math.max(h,18),ev=a.slice(from,23).concat(a[h]);
-   setW(d.current.apparent_temperature,Math.min(...ev),Math.max(...p.slice(h,24)),d.current.wind_speed_10m,d.daily.temperature_2m_max[0]);
+   const d=await(await fetch(u)).json(),h=new Date().getHours(),a=d.hourly.apparent_temperature,p=d.hourly.precipitation_probability;
+   setW(d.current.apparent_temperature,Math.min(...a.slice(Math.max(h,18),23).concat(a[h])),Math.max(...p.slice(h,24)),d.current.wind_speed_10m,d.daily.temperature_2m_max[0],a.slice(6,24),h);
   }catch(e){manual()}
  },manual,{timeout:10000,maximumAge:600000});
 }
-$('next').onclick=()=>{idx++;render()};
+// Edição
+let selP=new Set(),selLo=new Set(ALL),selFo=new Set(ALL);
+function tog(el,items,sel,lab){el.innerHTML='';items.forEach(k=>{const b=document.createElement('button');b.className='chip';b.textContent=lab(k);b.setAttribute('aria-pressed',sel.has(k));b.onclick=()=>{sel.has(k)?sel.delete(k):sel.add(k);b.setAttribute('aria-pressed',sel.has(k))};el.appendChild(b)})}
+function editR(){
+ $('eP').innerHTML=S.pieces.map((p,i)=>'<li><span><span class="dot" style="background:'+esc(p.c)+'"></span>'+esc(p.n)+' <small>'+KIND[p.k]+'</small></span><button data-i="'+i+'" aria-label="Remover">Remover</button></li>').join('');
+ $('eL').innerHTML=S.looks.map((l,i)=>'<li><span>'+esc(l.n)+'<small>'+l.t[0]+'° a '+l.t[1]+'° · '+l.p.length+' peças</small></span><button data-i="'+i+'">Remover</button></li>').join('');
+ $('eF').innerHTML=S.perf.map((p,i)=>'<li><span>'+esc(p.n)+'<small>'+esc(p.d)+'</small></span><button data-i="'+i+'">Remover</button></li>').join('');
+ tog($('lp'),S.pieces.map(p=>p.id),selP,id=>P(id).n);
+}
+$('pk').innerHTML=Object.keys(KIND).map(k=>'<option value="'+k+'">'+KIND[k]+'</option>').join('');
+tog($('lo'),ALL,selLo,k=>OCC[k]);tog($('fo'),ALL,selFo,k=>OCC[k]);
+$('eP').onclick=e=>{const i=e.target.dataset.i;if(i==null)return;const id=S.pieces[i].id;S.pieces.splice(i,1);S.looks.forEach(l=>l.p=l.p.filter(x=>x!==id));selP.delete(id);save();editR();render()};
+$('eL').onclick=e=>{const i=e.target.dataset.i;if(i==null)return;S.looks.splice(i,1);save();editR();render()};
+$('eF').onclick=e=>{const i=e.target.dataset.i;if(i==null)return;S.perf.splice(i,1);save();editR();render()};
+$('pa').onclick=()=>{const n=$('pn').value.trim();if(!n)return;S.pieces.push({id:'u'+Date.now(),n,k:$('pk').value,c:$('pc').value});$('pn').value='';save();editR()};
+$('la').onclick=()=>{const n=$('ln').value.trim();if(!n||!selP.size||!selLo.size)return;S.looks.push({id:'u'+Date.now(),n,p:[...selP],t:[+$('l0').value,+$('l1').value],o:[...selLo]});$('ln').value='';selP.clear();save();editR();render()};
+$('fa').onclick=()=>{const n=$('fn').value.trim();if(!n||!selFo.size)return;S.perf.push({n,d:$('fd').value.trim(),t:[+$('f0').value,+$('f1').value],o:[...selFo],x:$('fx').checked});$('fn').value=$('fd').value='';save();editR();render()};
+$('be').onclick=()=>{$('bk').value=JSON.stringify(S)};
+$('br').onclick=()=>{try{const d=JSON.parse($('bk').value);if(!d.pieces||!d.looks||!d.perf)throw 0;S=d;save();editR();render();$('bk').value='Backup restaurado.'}catch(e){$('bk').value='Texto de backup inválido.'}};
+$('bd').onclick=()=>{S=JSON.parse(JSON.stringify(DEF));save();editR();render()};
+// Navegação
+function tab(h){$('hoje').hidden=!h;$('edit').hidden=h;$('tH').setAttribute('aria-pressed',h);$('tE').setAttribute('aria-pressed',!h)}
+$('tH').onclick=()=>tab(1);$('tE').onclick=()=>{editR();tab(0)};
+$('next').onclick=()=>{idx++;v=0;render()};$('prev').onclick=()=>{idx--;v=0;render()};$('vary').onclick=()=>{v++;render()};
+let sx=0;$('lcard').ontouchstart=e=>{sx=e.changedTouches[0].clientX};$('lcard').ontouchend=e=>{const d=e.changedTouches[0].clientX-sx;if(Math.abs(d)>60){idx+=d<0?1:-1;v=0;render()}};
 chips();load();
 if('serviceWorker' in navigator)navigator.serviceWorker.register('sw.js').catch(()=>{});
 </script>
