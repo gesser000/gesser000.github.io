@@ -103,10 +103,11 @@ const $=id=>document.getElementById(id),P=id=>S.pieces.find(p=>p.id===id);
 const esc=s=>String(s).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
 let occ='casual',W=null,idx=0,v=0,bold=false;try{occ=localStorage.getItem('occ')||occ;bold=localStorage.getItem('bold')==='1'}catch(e){}
 function chips(){$('chips').innerHTML='';ALL.forEach(k=>{const b=document.createElement('button');b.className='chip';b.textContent=OCC[k];b.setAttribute('aria-pressed',k===occ);b.onclick=()=>{occ=k;idx=0;v=0;try{localStorage.setItem('occ',k)}catch(e){}chips();render()};$('chips').appendChild(b)});const o=document.createElement('button');o.className='chip';o.textContent='Mais ousado';o.setAttribute('aria-pressed',bold);o.onclick=()=>{bold=!bold;idx=0;v=0;try{localStorage.setItem('bold',bold?'1':'0')}catch(e){}chips();render()};$('chips').appendChild(o)}
-function use(p,tee){let o=(OPTS[p.k]||[]).slice();if(!o.length)return'';if(p.k==='camisa'&&tee)o.push('aberta sobre camiseta');
+function use(p,c){if(c.tee&&c.sh){if(p.k==='camiseta')return'por baixo da camisa';if(p.k==='camisa')return['aberta sobre a camiseta','abotoada, por fora'][v%2]}
+ let o=(OPTS[p.k]||[]).slice();if(!o.length)return'';
  let b=0;if(p.k==='camisa'||p.k==='polo')b=(occ==='trabalho'||occ==='jantar')?0:1;if(p.k==='calca')b=/cáqui|chino/i.test(p.n)?1:0;if(p.k==='casaco')b=W.wind>=20?0:1;
  return o[(b+v)%o.length]}
-function blk(p,tee,lay){return '<div class="blk'+(lay?' lay':'')+'"><i style="background:'+esc(p.c)+'"></i><b>'+(lay?'+ ':'')+esc(p.n)+'</b><small>'+esc(use(p,tee))+'</small></div>'}
+function blk(p,c,lay){return '<div class="blk'+(lay?' lay':'')+'"><i style="background:'+esc(p.c)+'"></i><b>'+(lay?'+ ':'')+esc(p.n)+'</b><small>'+esc(use(p,c))+'</small></div>'}
 function chart(a,h){const mn=Math.min(...a),mx=Math.max(...a),w=300,ht=56,x=i=>i*w/(a.length-1),y=q=>ht-4-(q-mn)/(mx-mn||1)*(ht-12),ci=Math.min(Math.max(h-6,0),a.length-1);
  $('chart').innerHTML='<svg viewBox="0 0 300 '+ht+'" width="100%" role="img" aria-label="Temperatura ao longo do dia"><polyline points="'+a.map((q,i)=>x(i)+','+y(q)).join(' ')+'" fill="none" stroke="var(--acc)" stroke-width="2"/><circle cx="'+x(ci)+'" cy="'+y(a[ci])+'" r="4" fill="var(--wine)"/></svg><div class="axis"><span>6h</span><span>'+Math.round(mn)+'° a '+Math.round(mx)+'°</span><span>23h</span></div>'}
 function render(){
@@ -117,10 +118,10 @@ function render(){
  if(!m.length&&S.looks.length)m=[S.looks.slice().sort((a,b)=>Math.abs(T-(a.t[0]+a.t[1])/2)-Math.abs(T-(b.t[0]+b.t[1])/2))[0]];
  if(!m.length){$('look').innerHTML='';$('lnote').textContent='Nenhum look cadastrado. Crie um na aba Editar.';}
  else{
-  const L=m[((idx%m.length)+m.length)%m.length],ps=L.p.map(P).filter(Boolean),tee=ps.some(p=>p.k==='camiseta'),hasOut=ps.some(p=>p.k==='casaco'),cold=E<20&&T-E>=4,lay=[];
+  const L=m[((idx%m.length)+m.length)%m.length],ps=L.p.map(P).filter(Boolean),c={tee:ps.some(p=>p.k==='camiseta'),sh:ps.some(p=>p.k==='camisa')},hasOut=ps.some(p=>p.k==='casaco'),cold=E<20&&T-E>=4,lay=[];
   if(!hasOut&&cold)lay.push(E<14?'psuper':(night||occ==='trabalho'?'pjm':'ppat'));
   if(W.rain>=50)lay.push('pcv');else if(W.wind>=28&&!hasOut&&!lay.length)lay.push('ppat');
-  $('look').innerHTML=ps.map(p=>blk(p,tee)).join('')+lay.map(P).filter(Boolean).map(p=>blk(p,tee,1)).join('');
+  $('look').innerHTML=ps.map(p=>blk(p,c)).join('')+lay.map(P).filter(Boolean).map(p=>blk(p,c,1)).join('');
   $('lnote').textContent=L.n+(L.x?'. '+L.x:'')+(cold&&!hasOut?'. Esfria até '+Math.round(E)+'° à noite: leve a camada.':'')+(W.rain>=50?'. Chuva provável.':'');
  }
  $('next').hidden=$('prev').hidden=m.length<2;
