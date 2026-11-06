@@ -25,6 +25,10 @@ main{max-width:560px;margin:0 auto}
 button,select,input,textarea{font:inherit;color:inherit}button{cursor:pointer}
 h2{font:700 20px 'DM Sans',system-ui;margin:0 0 10px}
 .bar{display:flex;align-items:center;gap:8px;min-height:64px}.bar h1{font:700 22px 'DM Sans',system-ui;margin:0;flex:1}
+.bar[hidden]{display:none}
+.ed.seg{background:var(--sf)}.ed.seg button{color:var(--ink)}.ed.seg button[aria-pressed=true]{background:var(--pc);color:var(--onpc)}
+.us{display:grid;grid-template-columns:1fr 90px 34px;gap:10px;align-items:center;padding:5px 0;font-size:14px}.un{white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.ub{height:8px;border-radius:4px;background:var(--line);overflow:hidden}.ub i{display:block;height:100%;background:var(--pri);border-radius:4px}.us b{text-align:right;font-size:13px}
 #eb{padding:env(safe-area-inset-top) 20px 0}#edit{padding:0 20px 32px}
 .ib{width:48px;height:48px;border-radius:50%;border:0;background:var(--sf);display:grid;place-items:center;padding:0;flex:none}.ib:disabled{opacity:.35}
 .ib svg{width:24px;height:24px;fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
@@ -89,18 +93,19 @@ input[type=color]{width:56px;height:48px;padding:4px}input[type=checkbox]{width:
 <div class="top"><header class="bar hb"><div class="seg sm" id="dy" hidden role="group" aria-label="Dia"><button id="d0" aria-pressed="true">Hoje</button><button id="d1" aria-pressed="false">Amanhã</button></div><button class="ib" id="tE" aria-label="Editar guarda-roupa" style="margin-left:auto"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"/><path d="M12 2v3M12 19v3M2 12h3M19 12h3M4.9 4.9l2.1 2.1M17 17l2.1 2.1M4.9 19.1L7 17M17 7l2.1-2.1"/></svg></button></header>
 <div class="hrow"><div class="temp" id="temp">--</div><div class="hrs" id="chart"></div></div>
 <p class="sub" id="sub">Buscando sua localização…</p>
-<p class="sub" id="manual" hidden>Sem GPS: informe a temperatura (°C) <input id="mt" type="number" inputmode="numeric" placeholder="22" style="width:90px"></p>
+<p class="sub" id="manual" hidden>Informe a temperatura (°C) <input id="mt" type="number" inputmode="numeric" placeholder="22" style="width:90px"> ou <button class="lnk" id="mcity" style="color:inherit;margin:0">escolha uma cidade</button></p>
 <p class="sub sm" id="upd"></p>
 <div class="seg" id="occ" role="group" aria-label="Ocasião"></div></div>
 <div class="shw">
 <div class="sh-h"><span class="kick" id="cnt2" aria-live="polite"></span><div class="arr"><button class="ib" id="prev" aria-label="Look anterior"><svg viewBox="0 0 24 24"><path d="M15 5l-7 7 7 7"/></svg></button><button class="ib" id="next" aria-label="Próximo look"><svg viewBox="0 0 24 24"><path d="M9 5l7 7-7 7"/></svg></button></div></div>
 <div class="car" id="car" aria-label="Looks sugeridos"></div><div class="dots" id="dots"></div>
 <p class="note" id="lnote" aria-live="polite"></p>
-<button class="lnk" id="vary">Variar o jeito de usar</button>
+<div style="display:flex;justify-content:space-between;gap:12px;flex-wrap:wrap"><button class="lnk" id="vary">Variar o jeito de usar</button><button class="lnk" id="other">Usei outra coisa</button></div>
 <section class="card" style="margin-top:12px"><h2>Perfume</h2><ul id="perf"></ul><p class="note" id="pnote"></p></section>
 <div class="acts"><button class="alt" id="adj">Ajustar</button><button class="alt fill" id="used">Usei este look hoje</button></div>
 </div></div>
 <div id="edit" hidden>
+<section class="card"><h2>Uso das peças</h2><div class="seg ed" id="stP" role="group" aria-label="Período"></div><div id="stats"></div><div class="kick" style="margin:16px 0 4px">Últimos registros</div><ul id="hist"></ul></section>
 <section class="card"><h2>Peças</h2><ul id="eP"></ul>
 <input id="pn" placeholder="Nome da peça"><div class="row"><select id="pk" style="flex:1"></select><input id="pc" type="color" value="#b9a577" aria-label="Cor"></div><button class="alt" id="pa">Adicionar peça</button><button class="alt" id="px" hidden>Cancelar</button></section>
 <section class="card"><h2>Looks</h2><ul id="eL"></ul>
@@ -117,12 +122,18 @@ input[type=color]{width:56px;height:48px;padding:4px}input[type=checkbox]{width:
 </div>
 </main>
 <div class="scrim" id="scrim" hidden></div>
+<div class="sheet" id="wsheet" role="dialog" aria-modal="true" aria-labelledby="wt" hidden>
+<div class="grab"></div><div class="bar" style="min-height:48px"><h1 id="wt" style="font-size:20px">O que você vestiu</h1><button class="ib" id="wx" aria-label="Fechar"><svg viewBox="0 0 24 24"><path d="M6 6l12 12M18 6L6 18"/></svg></button></div>
+<h3>Dia</h3><input type="date" id="wd" aria-label="Dia">
+<h3>Peças <span id="wn" style="font-weight:400"></span></h3><div class="chips" id="wp"></div>
+<div class="btns"><button class="alt" id="wcl">Cancelar</button><button class="alt fill" id="wsv">Salvar</button></div></div>
 <div class="sheet" id="sheet" role="dialog" aria-modal="true" aria-labelledby="sht" hidden>
 <div class="grab"></div><div class="bar" style="min-height:48px"><h1 id="sht" style="font-size:20px">Ajustar</h1><button class="ib" id="sx" aria-label="Fechar"><svg viewBox="0 0 24 24"><path d="M6 6l12 12M18 6L6 18"/></svg></button></div>
 <h3>Intensidade do look</h3><div class="seg" id="sTone" role="group"></div>
 <h3>Volto até</h3><div class="seg" id="sBack" role="group"></div>
 <h3>Quero usar</h3><select id="pin" aria-label="Quero usar esta peça"></select>
 <h3>Na lavanderia</h3><div class="chips" id="wash"></div>
+<h3>Local</h3><p class="note" id="locnow" style="margin:0 0 8px"></p><div class="row"><input id="cityq" placeholder="Buscar cidade" aria-label="Buscar cidade" style="flex:1;margin:0"><button class="alt" id="cityb" style="flex:none">Buscar</button></div><div id="cityr" style="margin-top:8px"></div><button class="alt" id="gpsb" style="width:100%;margin-top:4px">Usar o GPS automaticamente</button>
 <div class="btns"><button class="alt" id="sclr">Limpar ajustes</button><button class="alt fill" id="sok">Pronto</button></div></div>
 <div id="toast" role="status" aria-live="polite" hidden></div>
 <script>
@@ -150,7 +161,7 @@ const save=()=>{try{localStorage.setItem('vestir2',JSON.stringify(S))}catch(e){}
 if(S.v!==6){DEF.pieces.forEach(p=>{if(!S.pieces.some(q=>q.id===p.id))S.pieces.push(p)});DEF.looks.forEach(l=>{const o=S.looks.find(q=>q.id===l.id);if(!o)S.looks.push(l);else if(o.b==null&&l.b)o.b=1});DEF.perf.forEach(p=>{const o=S.perf.find(q=>q.n===p.n);if(!o)S.perf.push(p);else if(/palpite/.test(o.d)&&!/palpite/.test(p.d))o.d=p.d});S.v=6;save()}
 const $=id=>document.getElementById(id),P=id=>S.pieces.find(p=>p.id===id);
 const esc=s=>String(s).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
-let occ='casual',W=null,idx=0,v=0,tone=2,back=null,RN=0,pin='',last=0,cur=null,D=[null,null],day=0,M=[];try{occ=localStorage.getItem('occ')||occ;tone=+localStorage.getItem('tone')||2;back=+localStorage.getItem('back')||null}catch(e){}
+let occ='casual',W=null,idx=0,v=0,tone=2,back=null,RN=0,LOC=null,pin='',last=0,cur=null,D=[null,null],day=0,M=[];try{occ=localStorage.getItem('occ')||occ;tone=+localStorage.getItem('tone')||2;back=+localStorage.getItem('back')||null;LOC=JSON.parse(localStorage.getItem('loc')||'null')}catch(e){}
 function chips(){$('occ').innerHTML='';ALL.forEach(k=>{const b=document.createElement('button');b.textContent=OCC[k];b.setAttribute('aria-pressed',k===occ);b.onclick=()=>{occ=k;idx=0;v=0;sv('occ',k);chips();render()};$('occ').appendChild(b)});const n=nAj();$('adj').textContent='Ajustar'+(n?' · '+n:'')}
 const TONE=['Discreto','Equilibrado','Marcante'],BK=[[null,'Auto'],[18,'18h'],[22,'22h'],[23,'Depois']],sv=(k,x)=>{try{localStorage.setItem(k,x)}catch(e){}};
 const lvl=l=>l.lv||(l.b?3:2),ok=l=>!l.p.some(id=>{const q=P(id);return q&&q.off});
@@ -161,9 +172,10 @@ function sheet(){const seg=(el,items,cur,fn)=>{el.innerHTML='';items.forEach(([v
  seg($('sBack'),BK,back,x=>{back=x;sv('back',x==null?'':x);idx=0;render()});
  pinOpts();$('wash').innerHTML='';
  S.pieces.slice().sort((a,b)=>ORD.indexOf(a.k)-ORD.indexOf(b.k)).forEach(p=>{const b=document.createElement('button');b.className='chip';b.textContent=p.n;b.setAttribute('aria-pressed',!!p.off);b.onclick=()=>{p.off=!p.off;save();idx=0;render();sheet()};$('wash').appendChild(b)});
- chips()}
+ $('locnow').textContent=LOC?(LOC.name||'Localização do GPS')+(LOC.fixed?' · fixo':' · automático'):'Nenhum local salvo.';chips()}
 function openSh(){sheet();$('sheet').hidden=$('scrim').hidden=false;$('sx').focus()}
-function closeSh(){$('sheet').hidden=$('scrim').hidden=true}
+function closeSh(){$('sheet').hidden=$('wsheet').hidden=$('scrim').hidden=true}
+function closeW(){$('wsheet').hidden=$('scrim').hidden=true}
 function use(p,c){if(c.tee&&c.sh){if(p.k==='camiseta')return'por baixo da camisa';if(p.k==='camisa')return['aberta sobre a camiseta','abotoada, por fora'][v%2]}
  let o=(OPTS[p.k]||[]).slice();if(!o.length)return'';
  let b=0;if(p.k==='camisa'||p.k==='polo')b=(occ==='trabalho'||occ==='jantar')?0:1;if(p.k==='calca')b=/cáqui|chino/i.test(p.n)?1:0;if(p.k==='casaco')b=W.wind>=20?0:1;
@@ -196,24 +208,39 @@ function render(){
  $('perf').innerHTML=sc.slice(0,2).map((x,i)=>'<li><span><b>'+esc(x.p.n)+'</b><small>'+esc(x.p.d)+(i?' · alternativa':'')+'</small></span></li>').join('');
  $('pnote').textContent=sc.length&&!sc[0].p.x&&(T<16||(night&&T<20))?'Nenhum perfume seu é indicado para esse clima. Cadastre um mais quente em Editar (engrenagem).':'';
 }
-function setW(f,e,r,w,mx,hrs,h,ph,tm,cn){last=Date.now();if(hrs)$('manual').hidden=true;$('upd').textContent=hrs?'Atualizado às '+new Date().toLocaleTimeString('pt-BR',{hour:'2-digit',minute:'2-digit'}):'';D[0]={w:{feels:f,eve:Math.min(e,f),rain:r,wind:w},mx,hrs,h,ph,c:cn};D[1]=tm||null;$('dy').hidden=!tm;if(!tm)day=0;show(day)}
+function setW(f,e,r,w,mx,hrs,h,ph,tm,cn){last=Date.now();if(hrs)$('manual').hidden=true;$('upd').textContent=hrs?'Atualizado às '+new Date().toLocaleTimeString('pt-BR',{hour:'2-digit',minute:'2-digit'})+(LOC&&LOC.name?' · '+LOC.name:''):'';D[0]={w:{feels:f,eve:Math.min(e,f),rain:r,wind:w},mx,hrs,h,ph,c:cn};D[1]=tm||null;$('dy').hidden=!tm;if(!tm)day=0;show(day)}
 function show(d){day=d;const X=D[d];if(!X)return;W=X.w;$('temp').textContent=Math.round(W.feels)+'°';$('sub').textContent=(X.c?X.c+' · ':'')+(d?'Amanhã, média diurna':'Sensação agora')+(X.mx!=null?' · máx. '+Math.round(X.mx)+'°':'')+' · chuva '+Math.round(W.rain)+'% · vento '+Math.round(W.wind)+' km/h';if(X.hrs)chart(X.hrs,X.h,X.ph||[],d);else $('chart').innerHTML='';$('d0').setAttribute('aria-pressed',!d);$('d1').setAttribute('aria-pressed',!!d);theme();render()}
 function theme(){const th=W.rain>=50?'chuva':W.feels<17?'frio':W.feels>=29?'calor':'sol';document.documentElement.dataset.w=th;const c=getComputedStyle(document.documentElement).getPropertyValue('--hbg').trim();if(c)document.querySelectorAll('meta[name=theme-color]').forEach(m=>m.setAttribute('content',c))}
 const wx=c=>c==null?'':c===0?'Céu limpo':c<=2?'Sol com nuvens':c===3?'Nublado':c<=48?'Neblina':c<=57?'Garoa':c<=67?'Chuva':c<=77?'Neve':c<=82?'Pancadas de chuva':'Tempestade';
 function manual(m){$('manual').hidden=false;$('sub').textContent=typeof m==='string'?m:'Não foi possível obter a localização.';$('mt').oninput=e=>{const q=parseFloat(e.target.value);if(!isNaN(q))setW(q,q-4,0,0,null)}}
-function load(){
- if(!navigator.geolocation)return manual();
- navigator.geolocation.getCurrentPosition(async pos=>{
-  try{
-   const u='https://api.open-meteo.com/v1/forecast?latitude='+pos.coords.latitude+'&longitude='+pos.coords.longitude+'&current=apparent_temperature,wind_speed_10m,weather_code&hourly=apparent_temperature,precipitation_probability,wind_speed_10m&daily=temperature_2m_max,weather_code&timezone=auto&forecast_days=2';
-   const d=await(await fetch(u)).json(),h=new Date().getHours(),a=d.hourly.apparent_temperature,p=d.hourly.precipitation_probability;
-   const mean=x=>x.reduce((t,q)=>t+q,0)/x.length,wd=d.hourly.wind_speed_10m,f2=a.length>=48?mean(a.slice(33,42)):0,tm=a.length>=48?{w:{feels:f2,eve:Math.min(f2,...a.slice(42,48)),rain:Math.max(...p.slice(30,48)),wind:Math.max(...wd.slice(30,48))},mx:d.daily.temperature_2m_max[1],hrs:a.slice(30,48),ph:p.slice(30,48),h:9,c:wx(d.daily.weather_code&&d.daily.weather_code[1])}:null;
-   setW(d.current.apparent_temperature,Math.min(...a.slice(Math.max(h,18),23).concat(a[h])),Math.max(...p.slice(h,24)),d.current.wind_speed_10m,d.daily.temperature_2m_max[0],a.slice(6,24),h,p.slice(6,24),tm,wx(d.current.weather_code));
-  }catch(e){manual('Sem conexão com a previsão. Informe a temperatura.')}
- },err=>manual(err&&err.code===1?'Localização bloqueada. Libere nas configurações do site no Chrome ou informe a temperatura.':'Não consegui obter sua localização. Informe a temperatura.'),{timeout:10000,maximumAge:600000});
+const dist=(a,b)=>{const r=x=>x*Math.PI/180,q=Math.sin(r(b.lat-a.lat)/2)**2+Math.cos(r(a.lat))*Math.cos(r(b.lat))*Math.sin(r(b.lon-a.lon)/2)**2;return 12742*Math.asin(Math.sqrt(q))};
+function apply(d,t){const h=new Date().getHours(),a=d.hourly.apparent_temperature,p=d.hourly.precipitation_probability;
+ const mean=x=>x.reduce((t,q)=>t+q,0)/x.length,wd=d.hourly.wind_speed_10m,f2=a.length>=48?mean(a.slice(33,42)):0,tm=a.length>=48?{w:{feels:f2,eve:Math.min(f2,...a.slice(42,48)),rain:Math.max(...p.slice(30,48)),wind:Math.max(...wd.slice(30,48))},mx:d.daily.temperature_2m_max[1],hrs:a.slice(30,48),ph:p.slice(30,48),h:9,c:wx(d.daily.weather_code&&d.daily.weather_code[1])}:null;
+ setW(d.current.apparent_temperature,Math.min(...a.slice(Math.max(h,18),23).concat(a[h])),Math.max(...p.slice(h,24)),d.current.wind_speed_10m,d.daily.temperature_2m_max[0],a.slice(6,24),h,p.slice(6,24),tm,wx(d.current.weather_code));
+ if(t)$('upd').textContent='Sem conexão · previsão das '+new Date(t).toLocaleTimeString('pt-BR',{hour:'2-digit',minute:'2-digit'})}
+async function fc(lat,lon){const d=await(await fetch('https://api.open-meteo.com/v1/forecast?latitude='+lat+'&longitude='+lon+'&current=apparent_temperature,wind_speed_10m,weather_code&hourly=apparent_temperature,precipitation_probability,wind_speed_10m&daily=temperature_2m_max,weather_code&timezone=auto&forecast_days=2')).json();if(!d.hourly)throw 0;sv('fc',JSON.stringify({d,t:Date.now()}));apply(d)}
+function cache(){try{const c=JSON.parse(localStorage.getItem('fc')||'null');if(c&&new Date(c.t).toDateString()===new Date().toDateString()){apply(c.d,c.t);return true}}catch(e){}return false}
+function load(){const L=LOC,bad='Não consegui obter sua localização. Informe a temperatura ou escolha uma cidade.',off=()=>{if(!cache())manual('Sem conexão com a previsão. Informe a temperatura.')},saved=()=>fc(L.lat,L.lon).catch(off);
+ if(L&&(L.fixed||!navigator.geolocation))return saved();
+ if(L)saved();
+ if(!navigator.geolocation)return manual(bad);
+ navigator.geolocation.getCurrentPosition(pos=>{const n={lat:pos.coords.latitude,lon:pos.coords.longitude};if(!L||dist(L,n)>10){LOC={lat:n.lat,lon:n.lon,name:'',fixed:false};sv('loc',JSON.stringify(LOC));fc(n.lat,n.lon).catch(off)}},err=>{if(!L)manual(err&&err.code===1?'Localização bloqueada. Libere nas configurações do site no Chrome, informe a temperatura ou escolha uma cidade.':bad)},{timeout:15000,maximumAge:36e5});
 }
 function toast(t,fn){const e=$('toast');e.textContent=t+' ';if(fn){const b=document.createElement('button');b.textContent='Desfazer';b.onclick=()=>{fn();e.hidden=true};e.append(b)}e.hidden=false;clearTimeout(toast.t);toast.t=setTimeout(()=>{e.hidden=true},6000)}
 function pinOpts(){$('pin').innerHTML='<option value="">Quero usar uma peça específica…</option>'+Object.keys(KIND).map(k=>{const a=S.pieces.filter(p=>p.k===k&&!p.off);return a.length?'<optgroup label="'+KIND[k]+'">'+a.map(p=>'<option value="'+esc(p.id)+'">'+esc(p.n)+'</option>').join('')+'</optgroup>':''}).join('');$('pin').value=pin}
+let sp=60,wsel=new Set();
+const fd=d=>d.slice(8)+'/'+d.slice(5,7),hp=x=>x.p||((S.looks.find(l=>l.id===x.id)||{}).p)||[];
+function useCount(n){const t0=new Date(today()).getTime(),c={};(S.h||[]).forEach(x=>{if(t0-new Date(x.d).getTime()>=n*864e5)return;hp(x).forEach(id=>c[id]=(c[id]||0)+1)});return c}
+function statsR(){const seg=$('stP');seg.innerHTML='';[30,60,90].forEach(n=>{const b=document.createElement('button');b.textContent=n+' dias';b.setAttribute('aria-pressed',n===sp);b.onclick=()=>{sp=n;statsR()};seg.appendChild(b)});
+ const c=useCount(sp),mx=Math.max(1,...Object.values(c)),used=S.pieces.filter(p=>c[p.id]).sort((a,b)=>c[b.id]-c[a.id]),idle=S.pieces.filter(p=>!c[p.id]&&!p.off);
+ $('stats').innerHTML='<div class="kick" style="margin:14px 0 6px">Mais usadas</div>'+(used.length?used.slice(0,10).map(p=>'<div class="us"><span class="un">'+esc(p.n)+'</span><span class="ub"><i style="width:'+Math.round(c[p.id]/mx*100)+'%"></i></span><b>'+c[p.id]+'×</b></div>').join('')+(used.length>10?'<p class="note">+ '+(used.length-10)+' outras peças usadas.</p>':''):'<p class="note">Sem registros neste período. Use "Usei este look hoje" ou "Usei outra coisa" na tela Hoje.</p>')+(used.length&&idle.length?'<div class="kick" style="margin:14px 0 6px">Paradas em '+sp+' dias ('+idle.length+')</div><p class="note" style="margin:0">'+idle.map(p=>esc(p.n)).join(', ')+'</p>':'');
+ $('hist').innerHTML=(S.h||[]).slice().sort((a,b)=>b.d.localeCompare(a.d)).slice(0,8).map(x=>{const l=S.looks.find(l=>l.id===x.id);return '<li><span>'+fd(x.d)+' · <b>'+esc(l?l.n:'Outra combinação')+'</b><small>'+esc(hp(x).map(P).filter(Boolean).map(p=>p.n).join(', '))+'</small></span><button data-h="'+x.d+'" aria-label="Remover registro de '+fd(x.d)+'">Remover</button></li>'}).join('')||'<li><small>Nenhum registro ainda.</small></li>'}
+function wP(){$('wp').innerHTML='';S.pieces.slice().sort((a,b)=>ORD.indexOf(a.k)-ORD.indexOf(b.k)).forEach(p=>{const b=document.createElement('button');b.className='chip';b.textContent=p.n;b.setAttribute('aria-pressed',wsel.has(p.id));b.onclick=()=>{wsel.has(p.id)?wsel.delete(p.id):wsel.add(p.id);b.setAttribute('aria-pressed',wsel.has(p.id));$('wn').textContent='· '+wsel.size};$('wp').appendChild(b)});$('wn').textContent=wsel.size?'· '+wsel.size:''}
+function openW(){wsel=new Set(day===0&&cur?cur.p.filter(P):[]);$('wd').value=$('wd').max=today();wP();$('wsheet').hidden=$('scrim').hidden=false;$('wx').focus()}
+function saveW(){const d=$('wd').value||today(),t=today();if(!wsel.size){toast('Escolha ao menos uma peça.');return}if(d>t){toast('A data não pode ser no futuro.');return}
+ const ps=[...wsel],sk=a=>a.slice().sort().join(),l=S.looks.find(l=>sk(l.p)===sk(ps)),s0=JSON.stringify(S.h||[]);
+ S.h=(S.h||[]).filter(x=>x.d!==d&&new Date(t)-new Date(x.d)<15552e6).concat(l?{d,id:l.id,p:ps}:{d,p:ps});save();closeW();idx=0;render();if(!$('edit').hidden)editR();
+ toast('Registrado em '+fd(d)+': '+ps.length+' peça(s).',()=>{S.h=JSON.parse(s0);save();render();if(!$('edit').hidden)editR()})}
 function rm(k,i){const s0=JSON.stringify(S),it=S[k][i],id=it.id;S[k].splice(i,1);if(k==='pieces'){S.looks.forEach(l=>l.p=l.p.filter(x=>x!==id));selP.delete(id)}save();editR();render();toast('Removido: '+it.n+'.',()=>{S=JSON.parse(s0);save();editR();render()})}
 const today=()=>new Date().toLocaleDateString('sv'),base=()=>{const d=new Date();d.setDate(d.getDate()+day);return d.toLocaleDateString('sv')};
 function ago(id){const h=(S.h||[]).filter(x=>x.id===id).map(x=>Math.round((new Date(base())-new Date(x.d))/864e5));return h.length?Math.min(...h):99}
@@ -221,7 +248,7 @@ const rk=l=>{const a=ago(l.id);return a===0?-1:a<=3?1:0};
 // Edição
 let ed=null,selP=new Set(),selLo=new Set(ALL),selFo=new Set(ALL);
 function tog(el,items,sel,lab){el.innerHTML='';items.forEach(k=>{const b=document.createElement('button');b.className='chip';b.textContent=lab(k);b.setAttribute('aria-pressed',sel.has(k));b.onclick=()=>{sel.has(k)?sel.delete(k):sel.add(k);b.setAttribute('aria-pressed',sel.has(k))};el.appendChild(b)})}
-function editR(){pinOpts();
+function editR(){pinOpts();statsR();
  $('eP').innerHTML=S.pieces.map((p,i)=>'<li><span><span class="dot" style="background:'+esc(p.c)+'"></span>'+esc(p.n)+' <small>'+KIND[p.k]+'</small></span><span class="ac"><button data-e="'+i+'" aria-label="Editar '+esc(p.n)+'">Editar</button><button data-i="'+i+'" aria-label="Remover '+esc(p.n)+'">Remover</button></span></li>').join('');
  $('eL').innerHTML=S.looks.map((l,i)=>'<li><span>'+esc(l.n)+'<small>'+l.t[0]+'° a '+l.t[1]+'° · '+l.p.length+' peças</small></span><span class="ac"><select data-lv="'+i+'" aria-label="Intensidade de '+esc(l.n)+'" style="width:auto;margin:0;min-height:44px">'+TONE.map((t,k)=>'<option value="'+(k+1)+'"'+(lvl(l)===k+1?' selected':'')+'>'+t+'</option>').join('')+'</select><button data-i="'+i+'" aria-label="Remover '+esc(l.n)+'">Remover</button></span></li>').join('');
  $('eF').innerHTML=S.perf.map((p,i)=>'<li><span>'+esc(p.n)+'<small>'+esc(p.d)+'</small></span><button data-i="'+i+'">Remover</button></li>').join('');
@@ -244,7 +271,7 @@ $('br').onclick=()=>restore($('bk').value);
 $('bdl').onclick=()=>{const a=document.createElement('a');a.href=URL.createObjectURL(new Blob([JSON.stringify(S)],{type:'application/json'}));a.download='vestir-backup-'+today()+'.json';a.click();setTimeout(()=>URL.revokeObjectURL(a.href),9e3)};
 $('bim').onclick=()=>$('bf').click();
 $('bf').onchange=async e=>{const f=e.target.files[0];if(f)restore(await f.text());e.target.value=''};
-$('used').onclick=()=>{if(!cur)return;const L=cur,s0=JSON.stringify(S.h||[]),t=today();S.h=(S.h||[]).filter(x=>x.d!==t&&new Date(t)-new Date(x.d)<5184e6).concat({d:t,id:L.id});save();idx=0;v=0;render();toast('Registrado: '+L.n+'.',()=>{S.h=JSON.parse(s0);save();render()})};
+$('used').onclick=()=>{if(!cur)return;const L=cur,s0=JSON.stringify(S.h||[]),t=today();S.h=(S.h||[]).filter(x=>x.d!==t&&new Date(t)-new Date(x.d)<15552e6).concat({d:t,id:L.id,p:L.p.slice()});save();idx=0;v=0;render();toast('Registrado: '+L.n+'.',()=>{S.h=JSON.parse(s0);save();render()})};
 $('bd').onclick=()=>{if(!confirm('Voltar ao padrão apaga todas as suas edições. Continuar?'))return;S=JSON.parse(JSON.stringify(DEF));save();editR();render()};
 // Navegação
 function tab(h){$('hoje').hidden=!h;$('edit').hidden=h;$('tH').setAttribute('aria-selected',h);$('tE').setAttribute('aria-selected',!h);$('eb').hidden=h;if(!h)editR();scrollTo(0,0)}
@@ -252,7 +279,12 @@ const route=()=>tab(location.hash!=='#editar');window.onhashchange=route;
 $('tH').onclick=()=>{if(location.hash==='#editar'){if(history.length>1)history.back();else location.hash=''}};$('tE').onclick=()=>{location.hash='editar'};
 $('d0').onclick=()=>{idx=0;v=0;show(0)};$('d1').onclick=()=>{idx=0;v=0;show(1)};
 $('pin').onchange=e=>{pin=e.target.value;idx=0;v=0;render();chips()};
-$('sx').onclick=$('sok').onclick=$('scrim').onclick=closeSh;$('adj').onclick=openSh;
+$('sx').onclick=$('sok').onclick=$('scrim').onclick=closeSh;$('adj').onclick=$('mcity').onclick=openSh;
+$('other').onclick=openW;$('wx').onclick=$('wcl').onclick=closeW;$('wsv').onclick=saveW;
+$('hist').onclick=e=>{const d=e.target.dataset.h;if(!d)return;const s0=JSON.stringify(S.h||[]);S.h=S.h.filter(x=>x.d!==d);save();editR();render();toast('Registro de '+fd(d)+' removido.',()=>{S.h=JSON.parse(s0);save();editR();render()})};
+$('cityb').onclick=async()=>{const q=$('cityq').value.trim();if(!q)return;$('cityr').textContent='Buscando…';try{const r=await(await fetch('https://geocoding-api.open-meteo.com/v1/search?name='+encodeURIComponent(q)+'&count=5&language=pt&format=json')).json(),L=r.results||[];$('cityr').innerHTML='';L.forEach(x=>{const b=document.createElement('button');b.className='alt';b.style.cssText='width:100%;text-align:left;margin-bottom:6px;flex:none';b.textContent=[x.name,x.admin1,x.country].filter(Boolean).join(', ');b.onclick=()=>{LOC={lat:x.latitude,lon:x.longitude,name:x.name,fixed:true};sv('loc',JSON.stringify(LOC));$('cityr').innerHTML='';$('cityq').value='';load();sheet()};$('cityr').appendChild(b)});if(!L.length)$('cityr').textContent='Nenhuma cidade encontrada.'}catch(e){$('cityr').textContent='Sem conexão para buscar.'}};
+$('cityq').onkeydown=e=>{if(e.key==='Enter')$('cityb').click()};
+$('gpsb').onclick=()=>{if(LOC){LOC.fixed=false;sv('loc',JSON.stringify(LOC))}load();sheet()};
 const step=d=>{if(M.length)go(((idx+d)%M.length+M.length)%M.length)};$('prev').onclick=()=>step(-1);$('next').onclick=()=>step(1);
 $('sclr').onclick=()=>{tone=2;back=null;pin='';sv('tone',2);sv('back','');idx=0;v=0;render();sheet()};
 document.addEventListener('keydown',e=>{if(e.key==='Escape')closeSh()});
